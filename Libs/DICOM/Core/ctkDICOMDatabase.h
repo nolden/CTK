@@ -46,6 +46,7 @@ class ctkDICOMAbstractThumbnailGenerator;
 /// a file for each object. The corresponding UIDs are used as filenames.
 /// Thumbnais for each image can be created; if so, they are stored in a directory
 /// parallel to "dicom" directory called "thumbs".
+///
 class CTK_DICOM_CORE_EXPORT ctkDICOMDatabase : public QObject
 {
   Q_OBJECT

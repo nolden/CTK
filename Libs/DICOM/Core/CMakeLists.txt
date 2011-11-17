@@ -41,6 +41,7 @@ SET_SOURCE_FILES_PROPERTIES(
 SET(KIT_MOC_SRCS
   ctkDICOMAbstractThumbnailGenerator.h
   ctkDICOMDatabase.h
+  ctkDICOMDatastore.h
   ctkDICOMIndexer.h
   ctkDICOMFilterProxyModel.h
   ctkDICOMModel.h
