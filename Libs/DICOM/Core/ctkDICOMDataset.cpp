@@ -682,6 +682,209 @@ int ctkDICOMDataset::GetElementAsUnsignedShort( const DcmTag& tag, unsigned long
   return i;
 }
 
+ctkDICOMDataset::TagValueMap ctkDICOMDataset::GetElements( TagValueMap &elements) const
+{
+  Q_D(const ctkDICOMDataset);
+
+  DcmStack stack;
+  TagValueMap result;
+
+  if ( elements.empty() )
+    {
+      DcmStack stack;
+      while (d->m_DcmDataset->nextObject(stack, true) == EC_Normal)
+      {
+        DcmElement *de = dynamic_cast<DcmElement*>( stack.top() );
+        if (de)
+          {
+            QVariant leafValue(ElementToQVariant(de));
+            QString leafTag( de->getTag().getXTag().toString().c_str() );
+            TagValueMap targetMap;
+
+            if (! value.isValid() )
+              {
+              continue;
+              }
+
+            // process the stack, ignore separators, create maps for sequences
+            QStringList tags;
+
+            for ( int i = stack.card() - 1 ; i >= 0 ; i-- )
+              {
+                if (stack.elem(i)->getTag().getGroup() == 0xfffe &&
+                    stack.elem(i)->getTag().getElement() == 0xe000)
+                  {
+                    // ignore item delimiters
+                    continue;
+                  }
+
+
+                tags << QString( stack.elem(i)->getTag().getXTag().toString().c_str() );
+              }
+
+
+            if result.contains(tags[0])
+                target = result[tags[0]]
+                  // nach target schauen
+                result.insert(tags[0],target)
+            else
+              loop von hinten
+
+
+              QStringList::const_iterator it = tags.constBegin();
+              QString parentTag;
+              TagValueMap* parentMap = &targetMap;
+
+              while ( it != tags.constEnd() && targetMap->contains(*it) )
+                {
+                  parentTag = *it;
+                  parentMap* = &targetMap;
+
+                  targetMap = targetMap[*it].toMap();
+                  it++;
+                }
+
+            result->insert( tag , value );
+
+
+            /**
+             * debug stuff
+             if (de->getTag().getGroup() == 8 && de->getTag().getElement() == 0x14 )
+              {
+                std::cout << "Stack dump:" << std::endl;
+                for (int i = 0 ; i < stack.card() ; i++)
+                  {
+                    std::cout << i << ":" << stack.elem(i)->getTag().getXTag().toString() << std::endl;
+                  }
+              }
+              */
+          }
+      }
+      return result;
+    }
+
+
+  TagValueMap::iterator nextElement( elements.begin() );
+
+  /*while ( d->m_DcmDataset->search( nextElement.key(), stack, ESM_afterStackTop, OFTrue ) == EC_Normal)
+  {
+
+  } */
+  return elements;
+}
+
+QVariant ctkDICOMDataset::ElementToQVariant(DcmElement* e)
+{
+  // first of all we do not convert sequence elements themself
+  if (dynamic_cast<const DcmSequenceOfItems*>(e))
+  {
+    return QVariant();
+  }
+  
+  QVariantList resultList;
+ 
+  if (  DcmDecimalString* ds = dynamic_cast< DcmDecimalString*>(e) )
+  { 
+    for (unsigned int pos = 0 ; pos < e->getVM() ; pos++ )
+    {
+      Float64 f;
+      if ( ! CheckCondition( ds->getFloat64(f,pos) ) ) continue;
+      resultList << QVariant( static_cast<double>(f) );   
+    }
+  }
+  else if (  DcmIntegerString* is = dynamic_cast< DcmIntegerString*>(e) )
+  { 
+    for (unsigned int pos = 0 ; pos < e->getVM() ; pos++)
+    {
+      Sint32 i;
+      if ( ! CheckCondition( is->getSint32(i,pos) ) ) continue;
+      resultList << QVariant( static_cast<qint32>(i) );   
+    }
+  }
+  else if (  DcmDate* date = dynamic_cast< DcmDate*>(e) )
+  { 
+    for (unsigned int pos = 0 ; pos < e->getVM() ; pos++)
+    {
+      OFString s;
+      if ( CheckCondition( date->getISOFormattedDate(s, pos ) ) )
+      {
+        QString qs(s.c_str());
+        resultList << QVariant( QDate::fromString(qs, "yyyy-MM-dd") );
+      }
+    }
+  }
+  else if (  DcmDateTime* datetime = dynamic_cast< DcmDateTime*>(e) )
+  { 
+    for (unsigned int pos = 0 ; pos < e->getVM() ; pos++)
+    {
+      OFString s;
+      if ( CheckCondition( datetime->getISOFormattedDateTime(s, pos , OFTrue, OFFalse, OFTrue) ) )
+        // true (seconds), false (fraction of a second), true (time zone)
+      {
+        QString qs(s.c_str());
+        resultList << QVariant( QDateTime::fromString(qs, "dd-MM-yyyy hh:mm:ss") );
+      }
+    }
+  } 
+  else if (  DcmCharString* cs = dynamic_cast< DcmCharString*>(e) )
+  { 
+    for (unsigned int pos = 0 ; pos < e->getVM() ; pos++)
+    {
+      OFString s;
+      OFCondition cond = cs->getOFString(s,pos);
+      if (cond != EC_Normal) continue;
+      resultList << QVariant( QString( s.c_str() ) );   
+    }
+  } 
+  // fallback for all byte strings
+  // implement date, time etc. _ABOVE_ this
+  else if (  DcmByteString* bs = dynamic_cast< DcmByteString*>(e) )
+  { 
+    for (unsigned int pos = 0 ; pos < e->getVM() ; pos++)
+    {
+      OFString s;
+      OFCondition cond = bs->getOFString(s,pos);
+      if (cond != EC_Normal) continue;
+      resultList << QVariant( QString( s.c_str() ) );   
+    }
+  } 
+  /*
+   * add other types here if needed
+   * NOT subclasses of DcmByteString, see above
+   *
+  else if ( DcmByteString* bs = dynamic_cast<DcmByteString*>(e) )
+  { 
+    for (int pos = 0 ; pos < e->getVM() )
+    {
+      OFString s;
+      OFCondition cond = bs->getOFString(s,pos);
+      if (cond != EC_Normal) continue;
+      resultList << QVariant( QString( s.c_str() ) );   
+    }
+  } 
+  */
+
+  if (resultList.empty())
+  {
+    // none of the conversions was successfull
+    // fallback to string that is output by print()
+    // potentially containing extra stuff
+    //
+    std::ostringstream s;
+    e->print(s);
+    return QVariant( QString(s.str().c_str() ) );
+  }
+  else if (resultList.size() == 1)
+  {
+    // just one value, return it, not a list
+    return resultList.first();
+  }
+  else
+  {
+    return resultList;
+  }
+}
+
 bool ctkDICOMDataset::SetElementAsString( const DcmTag& tag, QString string )
 {
   Q_D(ctkDICOMDataset);

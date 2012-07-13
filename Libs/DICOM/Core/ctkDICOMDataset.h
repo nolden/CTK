@@ -28,6 +28,7 @@
 #include <dcdatset.h> // DCMTK DcmDataset
 
 #include <QtCore>
+#include <QVariant>
 
 class DcmDataDictionary;
 
@@ -63,6 +64,8 @@ class CTK_DICOM_CORE_EXPORT ctkDICOMDataset
 {
 public:
     typedef QObject Superclass;
+
+    typedef QMap< QString, QVariant> TagValueMap;
     ///
     /// \brief Create an empty object. This has to be initialized by one of
     /// the InitializeFrom... methods before it can be used.
@@ -199,6 +202,14 @@ public:
     bool SetElementAsSignedShort( const DcmTag& tag, int value, unsigned long pos = 0 ); // type SS
     bool SetElementAsUnsignedShort( const DcmTag& tag, int value, unsigned long pos = 0 ); // type US
 
+    ///
+    /// \brief efficiently get several elements at once
+    ///
+    /// \param elements This map gets filled with the element values or QVariant::Invalid if not found.
+    ///        If empty, return all elements
+    /// \return A map containing just the found elements
+    ///
+    TagValueMap GetElements( TagValueMap &elements) const;
 
     /// Some convenience getter
     QString GetStudyInstanceUID() const;
@@ -230,6 +241,11 @@ public:
     ///
     static QString TagVR( const DcmTag& tag );
 
+
+    /// \brief DcmElement to QVariant conversion.
+    ///
+    /// \warning This is not complete and often falling back to QString
+    static QVariant ElementToQVariant(DcmElement*); 
 protected:
 
     ///

@@ -5,6 +5,7 @@ create_test_sourcelist(Tests ${KIT}CppTests.cpp
   ctkDICOMDatabaseTest1.cpp
   ctkDICOMDatabaseTest2.cpp
   ctkDICOMDatasetTest1.cpp
+  ctkDICOMDatasetTest2.cpp
   ctkDICOMIndexerTest1.cpp
   ctkDICOMModelTest1.cpp
   ctkDICOMPersonNameTest1.cpp
@@ -32,6 +33,9 @@ target_link_libraries(${KIT}CppTests ${LIBRARY_NAME})
 SIMPLE_TEST(ctkDICOMDatabaseTest1)
 SIMPLE_TEST(ctkDICOMDatabaseTest2 ${CTKData_DIR}/Data/DICOM/MRHEAD/000055.IMA)
 SIMPLE_TEST(ctkDICOMDatasetTest1)
+SIMPLE_TEST(ctkDICOMDatasetTest2
+  ${CTKData_DIR}/Data/DICOM/MRHEAD/000055.IMA
+)
 SIMPLE_TEST(ctkDICOMIndexerTest1 )
 
 # ctkDICOMModel
