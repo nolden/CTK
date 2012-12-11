@@ -25,6 +25,7 @@
 
 #include "ctkDICOMPersonName.h"
 
+#define HAVE_CONFIG_H
 #include <dcdatset.h> // DCMTK DcmDataset
 
 #include <QtCore>
