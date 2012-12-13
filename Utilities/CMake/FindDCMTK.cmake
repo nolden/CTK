@@ -35,7 +35,7 @@
 #
 
 # prefer DCMTK_DIR over default system paths like /usr/lib
-set(CMAKE_PREFIX_PATH ${DCMTK_DIR}/lib ${CMAKE_PREFIX_PATH}) # this is given to FIND_LIBRARY or FIND_PATH
+set(CMAKE_PREFIX_PATH ${DCMTK_DIR}/lib ${DCMTK_DIR}/../../lib ${CMAKE_PREFIX_PATH}) # this is given to FIND_LIBRARY or FIND_PATH
 
 if(NOT DCMTK_FOUND AND NOT DCMTK_DIR)
   set(DCMTK_DIR
@@ -58,6 +58,7 @@ foreach(lib
     dcmimage
     dcmimgle
     dcmdata
+    dcmdsig
     oflog
     ofstd
     ijg12
@@ -75,7 +76,7 @@ foreach(lib
     ${DCMTK_DIR}/lib
     ${DCMTK_DIR}/lib/Release
     ${DCMTK_DIR}/dcmjpeg/lib${lib}/Release
-    NO_DEFAULT_PATH
+    # NO_DEFAULT_PATH
     )
 
   # Find Debug libraries
@@ -88,7 +89,7 @@ foreach(lib
     ${DCMTK_DIR}/lib
     ${DCMTK_DIR}/lib/Debug
     ${DCMTK_DIR}/dcmjpeg/lib${lib}/Debug
-    NO_DEFAULT_PATH
+    # NO_DEFAULT_PATH
     )
     
   mark_as_advanced(DCMTK_${lib}_LIBRARY_RELEASE)
@@ -179,3 +180,5 @@ endif()
 
 # Compatibility: This variable is deprecated
 set(DCMTK_INCLUDE_DIR ${DCMTK_INCLUDE_DIRS})
+
+list(APPEND DCMTK_LIBRARIES tiff wrap)
