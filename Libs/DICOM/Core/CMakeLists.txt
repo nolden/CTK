@@ -20,7 +20,8 @@ endif()
 file(READ ${_DCMTK_CONFIG_HEADER} _DCMTK_CONFIG)
 # simple check, we do not expect anything else
 if(_DCMTK_CONFIG MATCHES "PACKAGE_VERSION_NUMBER 360")
-  set(DCMTK_VERSION_IS_360)
+  set(DCMTK_VERSION_IS_360 1)
+  message(STATUS "Detected DCMTK 3.6.0, will include backported SCU")
 endif()
 
 # Source files
