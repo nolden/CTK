@@ -326,6 +326,9 @@ if(MSVC)
   set(CTK_CXX_FLAGS "${CTK_CXX_FLAGS} ${msvc_suppressed_warnings}")
 endif()
 
+# Fix for debian bug #637687, should never be merged in CTK master
+set(CTK_CXX_FLAGS "${CTK_CXX_FLAGS} -DHAVE_CONFIG_H")
+
 #-----------------------------------------------------------------------------
 # QT
 #
