@@ -30,11 +30,30 @@
 # Upgraded for GDCM by Mathieu Malaterre.
 # 
 
+<<<<<<< Updated upstream
 if( NOT DCMTK_FOUND )
   set( DCMTK_DIR "/usr/include/dcmtk/"
     CACHE PATH "Root of DCMTK source tree (optional)." )
   mark_as_advanced( DCMTK_DIR )
 endif()
+=======
+#
+# First, try to use NO_MODULE
+set(_DCMTK_REQUIRED)
+set(_DCMTK_QUIET)
+if(DCMTK_FIND_QUIETLY)
+  set(_DCMTK_QUIET QUIET)
+endif()
+if(DCMTK_FIND_REQUIRED)
+  set(_DCMTK_REQUIRED REQUIRED)
+endif()
+# find_package(DCMTK ${_DCMTK_REQUIRED} ${_DCMTK_QUIET} NO_MODULE)
+# if(DCMTK_FOUND
+#    AND NOT "x" STREQUAL "x${DCMTK_LIBRARIES}"
+#    AND NOT "x" STREQUAL "x${DCMTK_INCLUDE_DIRS}")
+#  return()
+#endif()
+>>>>>>> Stashed changes
 
 find_path( DCMTK_config_INCLUDE_DIR osconfig.h
   PATHS
