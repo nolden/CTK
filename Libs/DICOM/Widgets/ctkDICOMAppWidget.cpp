@@ -34,6 +34,10 @@
 #include <QProgressDialog>
 #include <QSettings>
 #include <QSlider>
+#include <QSortFilterProxyModel>
+#include <QSqlQueryModel>
+#include <QString>
+
 #include <QTabBar>
 #include <QTimer>
 #include <QTreeView>
@@ -80,6 +84,11 @@ public:
   QSharedPointer<ctkDICOMDatabase> DICOMDatabase;
   QSharedPointer<ctkDICOMThumbnailGenerator> ThumbnailGenerator;
   ctkDICOMModel DICOMModel;
+  QSqlQueryModel DICOMSQLModelPatient;
+  QSqlQueryModel DICOMSQLModelStudy;
+  QSortFilterProxyModel DICOMSQLFilterModelPatient;
+  QSortFilterProxyModel DICOMSQLFilterModelStudy;
+
   ctkDICOMFilterProxyModel DICOMProxyModel;
   QSharedPointer<ctkDICOMIndexer> DICOMIndexer;
   QProgressDialog *IndexerProgress;
@@ -94,6 +103,8 @@ public:
   QTimer* AutoPlayTimer;
 
   bool IsSearchWidgetPopUpMode;
+
+
 };
 
 //----------------------------------------------------------------------------
@@ -119,6 +130,8 @@ ctkDICOMAppWidgetPrivate::~ctkDICOMAppWidgetPrivate()
     delete UpdateSchemaProgress;
     }
 }
+
+
 
 void ctkDICOMAppWidgetPrivate::showUpdateSchemaDialog()
 {
@@ -295,6 +308,9 @@ ctkDICOMAppWidget::ctkDICOMAppWidget(QWidget* _parent):Superclass(_parent),
   connect(d->SearchOption, SIGNAL(parameterChanged()), this, SLOT(onSearchParameterChanged()));
 
   connect(d->PlaySlider, SIGNAL(valueChanged(int)), d->ImagePreview, SLOT(displayImage(int)));
+  connect(d->FilterEdit, SIGNAL(textChanged(QString)), &d->DICOMSQLFilterModelPatient,SLOT(setFilterWildcard(QString)));
+  connect(d->FilterEdit_2, SIGNAL(textChanged(QString)), &d->DICOMSQLFilterModelStudy,SLOT(setFilterWildcard(QString)));
+
 }
 
 //----------------------------------------------------------------------------
@@ -347,6 +363,27 @@ void ctkDICOMAppWidget::setDatabaseDirectory(const QString& directory)
   d->DICOMModel.setDatabase(d->DICOMDatabase->database());
   d->DICOMModel.setEndLevel(ctkDICOMModel::SeriesType);
   d->TreeView->resizeColumnToContents(0);
+
+  d->DICOMSQLModelPatient.setQuery("select * from Patients;",d->DICOMDatabase->database());
+  d->DICOMSQLFilterModelPatient.setSourceModel(&d->DICOMSQLModelPatient);
+  d->DICOMSQLFilterModelPatient.setFilterKeyColumn(-1);
+  d->DICOMSQLFilterModelPatient.setFilterCaseSensitivity(Qt::CaseInsensitive);
+  d->TableViewPatient->setModel(&d->DICOMSQLFilterModelPatient);
+  d->TableViewPatient->setSelectionBehavior(QAbstractItemView::SelectRows);
+  d->TableViewPatient->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+
+  d->DICOMSQLModelStudy.setQuery("select * from Studies;",d->DICOMDatabase->database());
+  d->DICOMSQLFilterModelStudy.setSourceModel(&d->DICOMSQLModelStudy);
+  d->DICOMSQLFilterModelStudy.setFilterKeyColumn(-1);
+  d->DICOMSQLFilterModelStudy.setFilterCaseSensitivity(Qt::CaseInsensitive);
+  d->TableViewStudy->setModel(&d->DICOMSQLFilterModelStudy);
+  d->TableViewStudy->setSelectionBehavior(QAbstractItemView::SelectRows);
+  d->TableViewStudy->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+  connect(d->TableViewPatient->selectionModel(),SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),this,SLOT(updateStudies()));
+
+
 
   //pass DICOM database instance to Import widget
   // d->ImportDialog->setDICOMDatabase(d->DICOMDatabase);
@@ -907,3 +944,33 @@ void ctkDICOMAppWidget::onSearchWidgetTopLevelChanged(bool topLevel){
     d->SearchDockWidget->hide();
     }
 }
+
+void ctkDICOMAppWidget::updateStudies()
+{
+  Q_D(ctkDICOMAppWidget);
+  // std::cout << "XXXXXXXXXXXXXXXXXXX";
+  QModelIndexList currentSelection = d->TableViewPatient->selectionModel()->selectedRows(0);
+  QString query;
+  if (currentSelection.empty())
+  {
+
+      query = "select * from Studies;";
+  }
+  else
+  {
+  query = "select * from Studies where PatientsUID in ( ";
+  QStringList inExpression;
+
+  foreach(QModelIndex i, currentSelection)
+  {
+      qDebug() << i.data();
+      inExpression <<  i.data().toString();
+  }
+  query.append(inExpression.join(",")).append(");");
+}
+  qDebug() << query;
+
+  d->DICOMSQLModelStudy.setQuery(query,d->DICOMDatabase->database());
+
+}
+

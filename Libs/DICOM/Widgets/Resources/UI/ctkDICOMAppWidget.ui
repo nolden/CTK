@@ -114,71 +114,124 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="QueryLayout" stretch="1,0">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>12</number>
-     </property>
-     <property name="rightMargin">
-      <number>12</number>
-     </property>
-     <item>
-      <widget class="QTreeView" name="TreeView">
-       <property name="alternatingRowColors">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="searchOptionLayout">
-       <property name="spacing">
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QDockWidget" name="SearchDockWidget">
-         <property name="floating">
-          <bool>false</bool>
-         </property>
-         <property name="features">
-          <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-         </property>
-         <property name="windowTitle">
-          <string/>
-         </property>
-         <widget class="QWidget" name="dockWidgetContents">
-          <layout class="QVBoxLayout" name="verticalLayout_4">
+    <widget class="QFrame" name="frame">
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <widget class="QTreeView" name="TreeView">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="searchOptionLayout">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QDockWidget" name="SearchDockWidget">
+          <property name="floating">
+           <bool>false</bool>
+          </property>
+          <property name="features">
+           <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+          </property>
+          <property name="windowTitle">
+           <string/>
+          </property>
+          <widget class="QWidget" name="dockWidgetContents">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="ctkDICOMQueryWidget" name="SearchOption" native="true">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <spacer name="VerticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QFrame" name="SearchListViewPat">
+        <layout class="QVBoxLayout" name="playground">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
-            <widget class="ctkDICOMQueryWidget" name="SearchOption" native="true">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
+            <widget class="QLineEdit" name="FilterEdit"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="FilterReset">
+             <property name="icon">
+              <iconset resource="../../../../Widgets/Resources/ctkWidgets.qrc">
+               <normaloff>:/Icons/clear.svg</normaloff>:/Icons/clear.svg</iconset>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
           </layout>
-         </widget>
-        </widget>
-       </item>
-       <item>
-        <spacer name="VerticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-    </layout>
+         </item>
+         <item>
+          <widget class="QTableView" name="TableViewPatient"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="SearchListViewStud">
+        <layout class="QVBoxLayout" name="playground_2">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QLineEdit" name="FilterEdit_2"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="FilterReset_2">
+             <property name="icon">
+              <iconset resource="../../../../Widgets/Resources/ctkWidgets.qrc">
+               <normaloff>:/Icons/clear.svg</normaloff>:/Icons/clear.svg</iconset>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QTableView" name="TableViewStudy"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="QFrame" name="UserFrame">
@@ -549,7 +602,9 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../../Widgets/Resources/ctkWidgets.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>ActionImport</sender>
@@ -606,8 +661,8 @@
    <slot>onNextImage()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>608</x>
-     <y>395</y>
+     <x>673</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -622,8 +677,8 @@
    <slot>onPreviousImage()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>566</x>
-     <y>395</y>
+     <x>627</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -638,8 +693,8 @@
    <slot>onNextSeries()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>395</y>
+     <x>719</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -654,8 +709,8 @@
    <slot>onPreviousSeries()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>524</x>
-     <y>395</y>
+     <x>581</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -670,8 +725,8 @@
    <slot>onNextStudy()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>692</x>
-     <y>395</y>
+     <x>765</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -686,8 +741,8 @@
    <slot>onPreviousStudy()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>395</y>
+     <x>535</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -702,8 +757,8 @@
    <slot>onAutoPlayCheckboxStateChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>430</x>
-     <y>596</y>
+     <x>585</x>
+     <y>583</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -718,8 +773,8 @@
    <slot>onThumbnailWidthSliderValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>236</x>
-     <y>610</y>
+     <x>320</x>
+     <y>590</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -740,6 +795,38 @@
     <hint type="destinationlabel">
      <x>391</x>
      <y>303</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>FilterReset</sender>
+   <signal>clicked()</signal>
+   <receiver>FilterEdit</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>523</x>
+     <y>123</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>460</x>
+     <y>118</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>FilterReset_2</sender>
+   <signal>clicked()</signal>
+   <receiver>FilterEdit_2</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>748</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>665</x>
+     <y>115</y>
     </hint>
    </hints>
   </connection>
