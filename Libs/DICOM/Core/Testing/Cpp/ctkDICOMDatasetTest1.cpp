@@ -53,7 +53,7 @@ int ctkDICOMDatasetTest1( int argc, char * argv [] )
   dataset.MarkForInitialization();
   try
     {
-    dataset.EnsureDcmDataSetIsInitialized();
+    dataset.EnsureDcmItemIsInitialized();
     }
   catch(...)
     {

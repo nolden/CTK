@@ -25,7 +25,7 @@
 
 #include "ctkDICOMPersonName.h"
 
-#include <dcdatset.h> // DCMTK DcmDataset
+#include <dcdatset.h> // DCMTK DcmItem
 
 #include <QtCore>
 
@@ -40,7 +40,7 @@ class ctkDICOMDatasetPrivate;
 ///
 ///  This class serves as the base class for all DICOM objects (patient, study, series, image).
 ///
-///  The class is derived from DcmDataset, the data type that is used by the DICOM toolkit when
+///  The class is derived from DcmItem, the data type that is used by the DICOM toolkit when
 ///  reading an image file or formulating a message request or receiving a message response (e.g. C-FIND).
 ///
 ///  Basically it offers a lot of convenience methods for subclasses to read and write DICOM attributes
@@ -56,9 +56,9 @@ class ctkDICOMDatasetPrivate;
 ///  \warning Helpers for writing DICOM attributes are not yet implemented. Implementation is straightforward though and can be done when necessary.
 ///  \warning DateTime objects ignore the timezone at the moment. This is however of secondary importance.
 ///
-///  A subclass could possibly want to store the internal DcmDataset.
-///  For this purpose, the internal DcmDataset is serialized into a memory buffer using DcmDataset::write(..). This buffer
-///  is stored in a base64 encoded string. For deserialization we decode the string and use DcmDataset::read(..).
+///  A subclass could possibly want to store the internal DcmItem.
+///  For this purpose, the internal DcmItem is serialized into a memory buffer using DcmItem::write(..). This buffer
+///  is stored in a base64 encoded string. For deserialization we decode the string and use DcmItem::read(..).
 class CTK_DICOM_CORE_EXPORT ctkDICOMDataset
 {
 public:
@@ -71,14 +71,14 @@ public:
     ctkDICOMDataset(bool strictErrorHandling = false);
     virtual ~ctkDICOMDataset();
 
-    /// \brief For initialization from a DcmDataset in a constructor / assignment.
+    /// \brief For initialization from a DcmItem in a constructor / assignment.
     ///
     /// This method should be overwritten by all derived classes. It should
     /// be called from the constructor or assignment operators when the class
-    /// should copy information from a DcmDataset object.
+    /// should copy information from a DcmItem object.
 
     /// \warning Derived classes must call PDICOMDataset::InitializeFromDataset(...) to correctly copy encoding information.
-    virtual void InitializeFromDataset(DcmDataset* dataset, bool takeOwnership = false);
+    virtual void InitializeFromDataset(DcmItem* dataset, bool takeOwnership = false);
 
     ///
     /// \brief For initialization from file in a constructor / assignment.
@@ -99,7 +99,7 @@ public:
 
     /// \brief Store a string representation of the object to a database field.
     ///
-    /// The internal DcmDataset is serialized into a memory buffer using DcmDataset::write(..).
+    /// The internal DcmItem is serialized into a memory buffer using DcmItem::write(..).
     /// To store the memory buffer in a simple string database field, we convert it to a base64 encoded string.
     /// Doing so prevents errors from encoding conversions that could be made by QString or the database etc.
     void Serialize();
@@ -107,7 +107,7 @@ public:
     /// \brief Restore the object from a string representation in a database field.
     ///
     /// The database stored string is base64 decoded into a memory buffer. Then
-    /// the internal DcmDataset is created using DcmDataset::read(..).
+    /// the internal DcmItem is created using DcmItem::read(..).
     void Deserialize();
 
 
@@ -122,12 +122,12 @@ public:
     bool IsInitialized() const;
 
     ///
-    /// \brief Called by all Get/Set methods to initialize DcmDataSet if needed.
+    /// \brief Called by all Get/Set methods to initialize DcmItem if needed.
     ///
-    void EnsureDcmDataSetIsInitialized() const;
+    void EnsureDcmItemIsInitialized() const;
 
 
-    /// \brief Find element in dataset and copy it into internal DcmDataset
+    /// \brief Find element in dataset and copy it into internal DcmItem
     ///
     /// Attribute types 1, 1C, 2, 2C, 3 as defined in DICOM can be encoded as
     /// hex values 0x1, 0x1C, 0x2, 0x2C, 0x3.
@@ -135,7 +135,7 @@ public:
     /// Conditional attributes are considered MUST attributes. The calling
     /// function shall test the conditions before calling CopyElement
     /// (since conditions might be complex).
-    bool CopyElement( DcmDataset* dataset, const DcmTagKey& tag, int type );
+    bool CopyElement( DcmItem* dataset, const DcmTagKey& tag, int type );
 
     /// \brief creates a QString from the OFString, respecting the "specific character set" of the Dataset.
     ///
@@ -153,12 +153,12 @@ public:
     OFString Encode(const DcmTag& tag, const QString& qstring) const;
 
     ///
-    /// \brief A const-correct version of DcmDataset::findAndGetElement.
+    /// \brief A const-correct version of DcmItem::findAndGetElement.
     ///
     OFCondition findAndGetElement(const DcmTag& tag, DcmElement*& element, const OFBool searchIntoSub=OFFalse) const; // DCMTK is not const-correct
 
     ///
-    ///  \brief A const-correct version of DcmDataset::findAndGetOFString.
+    ///  \brief A const-correct version of DcmItem::findAndGetOFString.
     ///
     OFCondition findAndGetOFString(const DcmTag& tag, OFString& value, const unsigned long pos = 0, const OFBool searchIntoSub=OFFalse) const; // DCMTK is not const-correct
 
@@ -250,7 +250,7 @@ protected:
 
   QScopedPointer<ctkDICOMDatasetPrivate> d_ptr;
 
-  DcmDataset& GetDcmDataset() const;
+  DcmItem& GetDcmDataset() const;
 
 private:
   Q_DECLARE_PRIVATE(ctkDICOMDataset);
