@@ -44,9 +44,7 @@
 
 // ctkDICOMCore includes
 #include "ctkDICOMDatabase.h"
-#include "ctkDICOMFilterProxyModel.h"
 #include "ctkDICOMIndexer.h"
-#include "ctkDICOMModel.h"
 
 // ctkDICOMWidgets includes
 #include "ctkDICOMAppWidget.h"
@@ -79,8 +77,6 @@ public:
 
   QSharedPointer<ctkDICOMDatabase> DICOMDatabase;
   QSharedPointer<ctkDICOMThumbnailGenerator> ThumbnailGenerator;
-  ctkDICOMModel DICOMModel;
-  ctkDICOMFilterProxyModel DICOMProxyModel;
   QSharedPointer<ctkDICOMIndexer> DICOMIndexer;
   QProgressDialog *IndexerProgress;
   QProgressDialog *UpdateSchemaProgress;
@@ -154,11 +150,11 @@ void ctkDICOMAppWidgetPrivate::showUpdateSchemaDialog()
     q->connect(DICOMDatabase.data(), SIGNAL(schemaUpdated()),
             UpdateSchemaProgress, SLOT(close()));
     // reset the database to show new data
-    q->connect(DICOMDatabase.data(), SIGNAL(schemaUpdated()),
-            &DICOMModel, SLOT(reset()));
-    // reset the database if canceled
-    q->connect(UpdateSchemaProgress, SIGNAL(canceled()), 
-            &DICOMModel, SLOT(reset()));
+//    q->connect(DICOMDatabase.data(), SIGNAL(schemaUpdated()),
+//            &DICOMModel, SLOT(reset()));
+//    // reset the database if canceled
+//    q->connect(UpdateSchemaProgress, SIGNAL(canceled()),
+//            &DICOMModel, SLOT(reset()));
     }
   UpdateSchemaProgress->show();
 }
@@ -196,13 +192,13 @@ void ctkDICOMAppWidgetPrivate::showIndexerDialog()
     q->connect(DICOMIndexer.data(), SIGNAL(indexingComplete()),
             IndexerProgress, SLOT(close()));
     // reset the database to show new data
-    q->connect(DICOMIndexer.data(), SIGNAL(indexingComplete()),
-            &DICOMModel, SLOT(reset()));
+//    q->connect(DICOMIndexer.data(), SIGNAL(indexingComplete()),
+//            &DICOMModel, SLOT(reset()));
     // stop indexing and reset the database if canceled
     q->connect(IndexerProgress, SIGNAL(canceled()), 
             DICOMIndexer.data(), SLOT(cancel()));
-    q->connect(IndexerProgress, SIGNAL(canceled()), 
-            &DICOMModel, SLOT(reset()));
+//    q->connect(IndexerProgress, SIGNAL(canceled()),
+//            &DICOMModel, SLOT(reset()));
 
     // allow users of this widget to know that the process has finished
     q->connect(IndexerProgress, SIGNAL(canceled()), 
@@ -234,17 +230,8 @@ ctkDICOMAppWidget::ctkDICOMAppWidget(QWidget* _parent):Superclass(_parent),
   d->NextStudyButton->hide();
   d->PrevStudyButton->hide();
 
-  //Enable sorting in tree view
-//  d->TreeView->setSortingEnabled(true);
-//  d->TreeView->setSelectionBehavior(QAbstractItemView::SelectRows);
-//  d->DICOMProxyModel.setSourceModel(&d->DICOMModel);
-//  d->TreeView->setModel(&d->DICOMModel);
-
   d->ThumbnailsWidget->setThumbnailSize(
     QSize(d->ThumbnailWidthSlider->value(), d->ThumbnailWidthSlider->value()));
-
-//  connect(d->TreeView, SIGNAL(collapsed(QModelIndex)), this, SLOT(onTreeCollapsed(QModelIndex)));
-//  connect(d->TreeView, SIGNAL(expanded(QModelIndex)), this, SLOT(onTreeExpanded(QModelIndex)));
 
   //Set ToolBar button style
   d->ToolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
@@ -351,8 +338,8 @@ void ctkDICOMAppWidget::setDatabaseDirectory(const QString& directory)
   // update the database schema if needed and provide progress
   this->updateDatabaseSchemaIfNeeded();
 
-  d->DICOMModel.setDatabase(d->DICOMDatabase->database());
-  d->DICOMModel.setEndLevel(ctkDICOMModel::SeriesType);
+//  d->DICOMModel.setDatabase(d->DICOMDatabase->database());
+//  d->DICOMModel.setEndLevel(ctkDICOMModel::SeriesType);
 //  d->TreeView->resizeColumnToContents(0);
 
   //pass DICOM database instance to Import widget
@@ -466,7 +453,7 @@ void ctkDICOMAppWidget::openQueryDialog()
 void ctkDICOMAppWidget::onQueryRetrieveFinished()
 {
   Q_D(ctkDICOMAppWidget);
-  d->DICOMModel.reset();
+//  d->DICOMModel.reset();
   emit this->queryRetrieveFinished();
 }
 
@@ -505,30 +492,6 @@ void ctkDICOMAppWidget::onRemoveAction()
 }
 
 //----------------------------------------------------------------------------
-void ctkDICOMAppWidget::suspendModel()
-{
-  Q_D(ctkDICOMAppWidget);
-
-  d->DICOMModel.setDatabase(d->EmptyDatabase);
-}
-
-//----------------------------------------------------------------------------
-void ctkDICOMAppWidget::resumeModel()
-{
-  Q_D(ctkDICOMAppWidget);
-
-  d->DICOMModel.setDatabase(d->DICOMDatabase->database());
-}
-
-//----------------------------------------------------------------------------
-void ctkDICOMAppWidget::resetModel()
-{
-  Q_D(ctkDICOMAppWidget);
-
-  d->DICOMModel.reset();
-}
-
-//----------------------------------------------------------------------------
 void ctkDICOMAppWidget::onThumbnailSelected(const ctkThumbnailLabel& widget)
 {
     Q_D(ctkDICOMAppWidget);
@@ -552,17 +515,18 @@ void ctkDICOMAppWidget::onThumbnailDoubleClicked(const ctkThumbnailLabel& widget
       return;
       }
 
-    ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(index.model()));
+    //TODO Fuer Tabelle machen
+//    ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(index.model()));
     QModelIndex index0 = index.sibling(index.row(), 0);
 
-    if(model && (model->data(index0,ctkDICOMModel::TypeRole) != static_cast<int>(ctkDICOMModel::ImageType)))
-      {
-        this->onModelSelected(index0);
-      //TODO fuer Manager umsetzen
-//        d->TreeView->setCurrentIndex(index0);
-        d->ThumbnailsWidget->addThumbnails(index0);
-        d->ImagePreview->onModelSelected(index0);
-      }
+//    if(model && (model->data(index0,ctkDICOMModel::TypeRole) != static_cast<int>(ctkDICOMModel::ImageType)))
+//      {
+//        this->onModelSelected(index0);
+//      //TODO fuer Manager umsetzen
+////        d->TreeView->setCurrentIndex(index0);
+//        d->ThumbnailsWidget->addThumbnails(index0);
+//        d->ImagePreview->onModelSelected(index0);
+//      }
 }
 
 //----------------------------------------------------------------------------
@@ -586,261 +550,247 @@ void ctkDICOMAppWidget::onImportDirectory(QString directory)
 void ctkDICOMAppWidget::onModelSelected(const QModelIndex &index){
 Q_D(ctkDICOMAppWidget);
 
-    ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(index.model()));
+//    ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(index.model()));
 
-    if(model)
-      {
-        QModelIndex index0 = index.sibling(index.row(), 0);
+//    if(model)
+//      {
+//        QModelIndex index0 = index.sibling(index.row(), 0);
 
-        if ( model->data(index0,ctkDICOMModel::TypeRole) == static_cast<int>(ctkDICOMModel::PatientType) )
-          {
-          d->NextImageButton->show();
-          d->PrevImageButton->show();
-          d->NextSeriesButton->show();
-          d->PrevSeriesButton->show();
-          d->NextStudyButton->show();
-          d->PrevStudyButton->show();
-          }
-        else if ( model->data(index0,ctkDICOMModel::TypeRole) == static_cast<int>(ctkDICOMModel::StudyType) )
-          {
-          d->NextImageButton->show();
-          d->PrevImageButton->show();
-          d->NextSeriesButton->show();
-          d->PrevSeriesButton->show();
-          d->NextStudyButton->hide();
-          d->PrevStudyButton->hide();
-          }
-        else if ( model->data(index0,ctkDICOMModel::TypeRole) == static_cast<int>(ctkDICOMModel::SeriesType) )
-          {
-          d->NextImageButton->show();
-          d->PrevImageButton->show();
-          d->NextSeriesButton->hide();
-          d->PrevSeriesButton->hide();
-          d->NextStudyButton->hide();
-          d->PrevStudyButton->hide();
-          }
-        else
-          {
-          d->NextImageButton->hide();
-          d->PrevImageButton->hide();
-          d->NextSeriesButton->hide();
-          d->PrevSeriesButton->hide();
-          d->NextStudyButton->hide();
-          d->PrevStudyButton->hide();
-          }
-        d->ActionRemove->setEnabled(
-            model->data(index0,ctkDICOMModel::TypeRole) == static_cast<int>(ctkDICOMModel::SeriesType) ||
-            model->data(index0,ctkDICOMModel::TypeRole) == static_cast<int>(ctkDICOMModel::StudyType) ||
-            model->data(index0,ctkDICOMModel::TypeRole) == static_cast<int>(ctkDICOMModel::PatientType) );
-        }
+//        if ( model->data(index0,ctkDICOMModel::TypeRole) == static_cast<int>(ctkDICOMModel::PatientType) )
+//          {
+//          d->NextImageButton->show();
+//          d->PrevImageButton->show();
+//          d->NextSeriesButton->show();
+//          d->PrevSeriesButton->show();
+//          d->NextStudyButton->show();
+//          d->PrevStudyButton->show();
+//          }
+//        else if ( model->data(index0,ctkDICOMModel::TypeRole) == static_cast<int>(ctkDICOMModel::StudyType) )
+//          {
+//          d->NextImageButton->show();
+//          d->PrevImageButton->show();
+//          d->NextSeriesButton->show();
+//          d->PrevSeriesButton->show();
+//          d->NextStudyButton->hide();
+//          d->PrevStudyButton->hide();
+//          }
+//        else if ( model->data(index0,ctkDICOMModel::TypeRole) == static_cast<int>(ctkDICOMModel::SeriesType) )
+//          {
+//          d->NextImageButton->show();
+//          d->PrevImageButton->show();
+//          d->NextSeriesButton->hide();
+//          d->PrevSeriesButton->hide();
+//          d->NextStudyButton->hide();
+//          d->PrevStudyButton->hide();
+//          }
+//        else
+//          {
+//          d->NextImageButton->hide();
+//          d->PrevImageButton->hide();
+//          d->NextSeriesButton->hide();
+//          d->PrevSeriesButton->hide();
+//          d->NextStudyButton->hide();
+//          d->PrevStudyButton->hide();
+//          }
+//        d->ActionRemove->setEnabled(
+//            model->data(index0,ctkDICOMModel::TypeRole) == static_cast<int>(ctkDICOMModel::SeriesType) ||
+//            model->data(index0,ctkDICOMModel::TypeRole) == static_cast<int>(ctkDICOMModel::StudyType) ||
+//            model->data(index0,ctkDICOMModel::TypeRole) == static_cast<int>(ctkDICOMModel::PatientType) );
+//        }
 
-      else
-        {
-        d->NextImageButton->hide();
-        d->PrevImageButton->hide();
-        d->NextSeriesButton->hide();
-        d->PrevSeriesButton->hide();
-        d->NextStudyButton->hide();
-        d->PrevStudyButton->hide();
-        d->ActionRemove->setEnabled(false);
-        }
+//      else
+//        {
+//        d->NextImageButton->hide();
+//        d->PrevImageButton->hide();
+//        d->NextSeriesButton->hide();
+//        d->PrevSeriesButton->hide();
+//        d->NextStudyButton->hide();
+//        d->PrevStudyButton->hide();
+//        d->ActionRemove->setEnabled(false);
+//        }
 }
 
 //----------------------------------------------------------------------------
 void ctkDICOMAppWidget::onNextImage(){
     Q_D(ctkDICOMAppWidget);
 
-    QModelIndex currentIndex = d->ImagePreview->currentImageIndex();
+//    QModelIndex currentIndex = d->ImagePreview->currentImageIndex();
 
-    if(currentIndex.isValid())
-      {
-      ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(currentIndex.model()));
+//    if(currentIndex.isValid())
+//      {
+//      ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(currentIndex.model()));
 
-      if(model)
-        {
-        QModelIndex seriesIndex = currentIndex.parent();
+//      if(model)
+//        {
+//        QModelIndex seriesIndex = currentIndex.parent();
 
-        int imageCount = model->rowCount(seriesIndex);
-        int imageID = currentIndex.row();
+//        int imageCount = model->rowCount(seriesIndex);
+//        int imageID = currentIndex.row();
 
-        imageID = (imageID+1)%imageCount;
+//        imageID = (imageID+1)%imageCount;
 
-        int max = d->PlaySlider->maximum();
-        if(imageID > 0 && imageID < max)
-          {
-            d->PlaySlider->setValue(imageID);
-          }
+//        int max = d->PlaySlider->maximum();
+//        if(imageID > 0 && imageID < max)
+//          {
+//            d->PlaySlider->setValue(imageID);
+//          }
 
-        QModelIndex nextIndex = currentIndex.sibling(imageID, 0);
+//        QModelIndex nextIndex = currentIndex.sibling(imageID, 0);
 
-        d->ImagePreview->onModelSelected(nextIndex);
-        d->ThumbnailsWidget->selectThumbnailFromIndex(nextIndex);
-        }
-      }
+//        d->ImagePreview->onModelSelected(nextIndex);
+//        d->ThumbnailsWidget->selectThumbnailFromIndex(nextIndex);
+//        }
+//      }
 }
 
 //----------------------------------------------------------------------------
 void ctkDICOMAppWidget::onPreviousImage(){
     Q_D(ctkDICOMAppWidget);
 
-    QModelIndex currentIndex = d->ImagePreview->currentImageIndex();
+//    QModelIndex currentIndex = d->ImagePreview->currentImageIndex();
 
-    if(currentIndex.isValid())
-      {
-      ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(currentIndex.model()));
+//    if(currentIndex.isValid())
+//      {
+//      ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(currentIndex.model()));
 
-      if(model)
-        {
-        QModelIndex seriesIndex = currentIndex.parent();
+//      if(model)
+//        {
+//        QModelIndex seriesIndex = currentIndex.parent();
 
-        int imageCount = model->rowCount(seriesIndex);
-        int imageID = currentIndex.row();
+//        int imageCount = model->rowCount(seriesIndex);
+//        int imageID = currentIndex.row();
 
-        imageID--;
-        if(imageID < 0) imageID += imageCount;
+//        imageID--;
+//        if(imageID < 0) imageID += imageCount;
 
-        int max = d->PlaySlider->maximum();
-        if(imageID > 0 && imageID < max)
-          {
-            d->PlaySlider->setValue(imageID);
-          }
+//        int max = d->PlaySlider->maximum();
+//        if(imageID > 0 && imageID < max)
+//          {
+//            d->PlaySlider->setValue(imageID);
+//          }
 
-        QModelIndex prevIndex = currentIndex.sibling(imageID, 0);
+//        QModelIndex prevIndex = currentIndex.sibling(imageID, 0);
 
-        d->ImagePreview->onModelSelected(prevIndex);
-        d->ThumbnailsWidget->selectThumbnailFromIndex(prevIndex);
-        }
-      }
+//        d->ImagePreview->onModelSelected(prevIndex);
+//        d->ThumbnailsWidget->selectThumbnailFromIndex(prevIndex);
+//        }
+//      }
 }
 
 //----------------------------------------------------------------------------
 void ctkDICOMAppWidget::onNextSeries(){
     Q_D(ctkDICOMAppWidget);
 
-    QModelIndex currentIndex = d->ImagePreview->currentImageIndex();
+//    QModelIndex currentIndex = d->ImagePreview->currentImageIndex();
 
-    if(currentIndex.isValid())
-      {
-      ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(currentIndex.model()));
+//    if(currentIndex.isValid())
+//      {
+//      ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(currentIndex.model()));
 
-      if(model)
-        {
-        QModelIndex seriesIndex = currentIndex.parent();
-        QModelIndex studyIndex = seriesIndex.parent();
+//      if(model)
+//        {
+//        QModelIndex seriesIndex = currentIndex.parent();
+//        QModelIndex studyIndex = seriesIndex.parent();
 
-        int seriesCount = model->rowCount(studyIndex);
-        int seriesID = seriesIndex.row();
+//        int seriesCount = model->rowCount(studyIndex);
+//        int seriesID = seriesIndex.row();
 
-        seriesID = (seriesID + 1)%seriesCount;
+//        seriesID = (seriesID + 1)%seriesCount;
 
-        QModelIndex nextIndex = seriesIndex.sibling(seriesID, 0);
+//        QModelIndex nextIndex = seriesIndex.sibling(seriesID, 0);
 
-        d->ImagePreview->onModelSelected(nextIndex);
-        d->ThumbnailsWidget->selectThumbnailFromIndex(nextIndex);
-        }
-      }
+//        d->ImagePreview->onModelSelected(nextIndex);
+//        d->ThumbnailsWidget->selectThumbnailFromIndex(nextIndex);
+//        }
+//      }
 }
 
 //----------------------------------------------------------------------------
 void ctkDICOMAppWidget::onPreviousSeries(){
     Q_D(ctkDICOMAppWidget);
 
-    QModelIndex currentIndex = d->ImagePreview->currentImageIndex();
+//    QModelIndex currentIndex = d->ImagePreview->currentImageIndex();
 
-    if(currentIndex.isValid())
-      {
-      ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(currentIndex.model()));
+//    if(currentIndex.isValid())
+//      {
+//      ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(currentIndex.model()));
 
-      if(model)
-        {
-        QModelIndex seriesIndex = currentIndex.parent();
-        QModelIndex studyIndex = seriesIndex.parent();
+//      if(model)
+//        {
+//        QModelIndex seriesIndex = currentIndex.parent();
+//        QModelIndex studyIndex = seriesIndex.parent();
 
-        int seriesCount = model->rowCount(studyIndex);
-        int seriesID = seriesIndex.row();
+//        int seriesCount = model->rowCount(studyIndex);
+//        int seriesID = seriesIndex.row();
 
-        seriesID--;
-        if(seriesID < 0) seriesID += seriesCount;
+//        seriesID--;
+//        if(seriesID < 0) seriesID += seriesCount;
 
-        QModelIndex prevIndex = seriesIndex.sibling(seriesID, 0);
+//        QModelIndex prevIndex = seriesIndex.sibling(seriesID, 0);
 
-        d->ImagePreview->onModelSelected(prevIndex);
-        d->ThumbnailsWidget->selectThumbnailFromIndex(prevIndex);
-        }
-      }
+//        d->ImagePreview->onModelSelected(prevIndex);
+//        d->ThumbnailsWidget->selectThumbnailFromIndex(prevIndex);
+//        }
+//      }
 }
 
 //----------------------------------------------------------------------------
 void ctkDICOMAppWidget::onNextStudy(){
     Q_D(ctkDICOMAppWidget);
 
-    QModelIndex currentIndex = d->ImagePreview->currentImageIndex();
+//    QModelIndex currentIndex = d->ImagePreview->currentImageIndex();
 
-    if(currentIndex.isValid())
-      {
-      ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(currentIndex.model()));
+//    if(currentIndex.isValid())
+//      {
+//      ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(currentIndex.model()));
 
-      if(model)
-        {
-        QModelIndex seriesIndex = currentIndex.parent();
-        QModelIndex studyIndex = seriesIndex.parent();
-        QModelIndex patientIndex = studyIndex.parent();
+//      if(model)
+//        {
+//        QModelIndex seriesIndex = currentIndex.parent();
+//        QModelIndex studyIndex = seriesIndex.parent();
+//        QModelIndex patientIndex = studyIndex.parent();
 
-        int studyCount = model->rowCount(patientIndex);
-        int studyID = studyIndex.row();
+//        int studyCount = model->rowCount(patientIndex);
+//        int studyID = studyIndex.row();
 
-        studyID = (studyID + 1)%studyCount;
+//        studyID = (studyID + 1)%studyCount;
 
-        QModelIndex nextIndex = studyIndex.sibling(studyID, 0);
+//        QModelIndex nextIndex = studyIndex.sibling(studyID, 0);
 
-        d->ImagePreview->onModelSelected(nextIndex);
-        d->ThumbnailsWidget->selectThumbnailFromIndex(nextIndex);
-        }
-      }
+//        d->ImagePreview->onModelSelected(nextIndex);
+//        d->ThumbnailsWidget->selectThumbnailFromIndex(nextIndex);
+//        }
+//      }
 }
 
 //----------------------------------------------------------------------------
 void ctkDICOMAppWidget::onPreviousStudy(){
     Q_D(ctkDICOMAppWidget);
 
-    QModelIndex currentIndex = d->ImagePreview->currentImageIndex();
+//    QModelIndex currentIndex = d->ImagePreview->currentImageIndex();
 
-    if(currentIndex.isValid())
-      {
-      ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(currentIndex.model()));
+//    if(currentIndex.isValid())
+//      {
+//      ctkDICOMModel* model = const_cast<ctkDICOMModel*>(qobject_cast<const ctkDICOMModel*>(currentIndex.model()));
 
-      if(model)
-        {
-        QModelIndex seriesIndex = currentIndex.parent();
-        QModelIndex studyIndex = seriesIndex.parent();
-        QModelIndex patientIndex = studyIndex.parent();
+//      if(model)
+//        {
+//        QModelIndex seriesIndex = currentIndex.parent();
+//        QModelIndex studyIndex = seriesIndex.parent();
+//        QModelIndex patientIndex = studyIndex.parent();
 
-        int studyCount = model->rowCount(patientIndex);
-        int studyID = studyIndex.row();
+//        int studyCount = model->rowCount(patientIndex);
+//        int studyID = studyIndex.row();
 
-        studyID--;
-        if(studyID < 0) studyID += studyCount;
+//        studyID--;
+//        if(studyID < 0) studyID += studyCount;
 
-        QModelIndex prevIndex = studyIndex.sibling(studyID, 0);
+//        QModelIndex prevIndex = studyIndex.sibling(studyID, 0);
 
-        d->ImagePreview->onModelSelected(prevIndex);
-        d->ThumbnailsWidget->selectThumbnailFromIndex(prevIndex);
-        }
-      }
-}
-
-//----------------------------------------------------------------------------
-void ctkDICOMAppWidget::onTreeCollapsed(const QModelIndex &index){
-    Q_UNUSED(index);
-    Q_D(ctkDICOMAppWidget);
-//    d->TreeView->resizeColumnToContents(0);
-}
-
-//----------------------------------------------------------------------------
-void ctkDICOMAppWidget::onTreeExpanded(const QModelIndex &index){
-    Q_UNUSED(index);
-    Q_D(ctkDICOMAppWidget);
-//    d->TreeView->resizeColumnToContents(0);
+//        d->ImagePreview->onModelSelected(prevIndex);
+//        d->ThumbnailsWidget->selectThumbnailFromIndex(prevIndex);
+//        }
+//      }
 }
 
 //----------------------------------------------------------------------------
@@ -872,53 +822,10 @@ void ctkDICOMAppWidget::onThumbnailWidthSliderValueChanged(int val){
 }
 
 //----------------------------------------------------------------------------
-void ctkDICOMAppWidget::onSearchParameterChanged(){
-  Q_D(ctkDICOMAppWidget);
-//  d->DICOMModel.setDatabase(d->DICOMDatabase->database(), d->SearchOption->parameters());
-
-  this->onModelSelected(d->DICOMModel.index(0,0));
-  d->ThumbnailsWidget->clearThumbnails();
-  d->ThumbnailsWidget->addThumbnails(d->DICOMModel.index(0,0));
-  d->ImagePreview->clearImages();
-  d->ImagePreview->onModelSelected(d->DICOMModel.index(0,0));
-}
-
-//----------------------------------------------------------------------------
 void ctkDICOMAppWidget::onImagePreviewDisplayed(int imageID, int count){
   Q_D(ctkDICOMAppWidget);
 
   d->PlaySlider->setMinimum(0);
   d->PlaySlider->setMaximum(count-1);
   d->PlaySlider->setValue(imageID);
-}
-
-//----------------------------------------------------------------------------
-void ctkDICOMAppWidget::onSearchPopUpButtonClicked(){
-  Q_D(ctkDICOMAppWidget);
-
-//  if(d->SearchDockWidget->isFloating())
-//    {
-//    d->SearchDockWidget->hide();
-//    d->SearchDockWidget->setFloating(false);
-//    }
-//  else
-//    {
-//    d->SearchDockWidget->setFloating(true);
-//    d->SearchDockWidget->adjustSize();
-//    d->SearchDockWidget->show();
-//    }
-}
-
-//----------------------------------------------------------------------------
-void ctkDICOMAppWidget::onSearchWidgetTopLevelChanged(bool topLevel){
-  Q_D(ctkDICOMAppWidget);
-
-//  if(topLevel)
-//    {
-//    d->SearchDockWidget->show();
-//    }
-//  else
-//    {
-//    d->SearchDockWidget->hide();
-//    }
 }

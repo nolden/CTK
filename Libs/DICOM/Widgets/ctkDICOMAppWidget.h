@@ -76,10 +76,6 @@ public Q_SLOTS:
   void openQueryDialog();
   void onRemoveAction();
 
-  void suspendModel();
-  void resumeModel();
-  void resetModel();
-
 Q_SIGNALS:
   /// Emited when directory is changed
   void databaseDirectoryChanged(const QString&);
@@ -110,12 +106,6 @@ protected Q_SLOTS:
     /// To be called when dialog finishes
     void onQueryRetrieveFinished();
 
-    /// To be called when an entry of the tree list is collapsed
-    void onTreeCollapsed(const QModelIndex& index);
-
-    /// To be called when an entry of the tree list is expanded
-    void onTreeExpanded(const QModelIndex& index);
-
     /// To be called when auto-play checkbox state changed
     void onAutoPlayCheckboxStateChanged(int state);
 
@@ -125,17 +115,8 @@ protected Q_SLOTS:
     /// To be called when the value of thumbnail size slider bar is changed
     void onThumbnailWidthSliderValueChanged(int val);
 
-    /// To be called when search parameters in query widget changed
-    void onSearchParameterChanged();
-
     /// To be called after image preview displayed an image
     void onImagePreviewDisplayed(int imageID, int count);
-
-private Q_SLOTS:
-
-    void onSearchPopUpButtonClicked();
-
-    void onSearchWidgetTopLevelChanged(bool topLevel);
 
 private:
   Q_DECLARE_PRIVATE(ctkDICOMAppWidget);
