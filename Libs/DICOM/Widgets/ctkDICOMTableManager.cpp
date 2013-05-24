@@ -110,7 +110,6 @@ void ctkDICOMTableManagerPrivate::init()
 
   tableSplitter->setStyleSheet("QSplitter::handle {background-color: rgb(224,224,224);}QSplitter::handle:horizontal {width: 2px;}QSplitter::handle:vertical {height: 2px;}");
 
-
   QHBoxLayout* buttonLayout = new QHBoxLayout();
   this->changeLayoutButton = new QPushButton();
   this->changeLayoutButton->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
