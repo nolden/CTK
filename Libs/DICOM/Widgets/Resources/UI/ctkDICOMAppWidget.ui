@@ -114,71 +114,14 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="QueryLayout" stretch="1,0">
-     <property name="spacing">
-      <number>0</number>
+    <widget class="ctkDICOMTableManager" name="dicomTableManager" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="leftMargin">
-      <number>12</number>
-     </property>
-     <property name="rightMargin">
-      <number>12</number>
-     </property>
-     <item>
-      <widget class="QTreeView" name="TreeView">
-       <property name="alternatingRowColors">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="searchOptionLayout">
-       <property name="spacing">
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QDockWidget" name="SearchDockWidget">
-         <property name="floating">
-          <bool>false</bool>
-         </property>
-         <property name="features">
-          <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-         </property>
-         <property name="windowTitle">
-          <string/>
-         </property>
-         <widget class="QWidget" name="dockWidgetContents">
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <widget class="ctkDICOMQueryWidget" name="SearchOption" native="true">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-       <item>
-        <spacer name="VerticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-    </layout>
+    </widget>
    </item>
    <item>
     <widget class="QFrame" name="UserFrame">
@@ -522,12 +465,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ctkDICOMQueryWidget</class>
-   <extends>QWidget</extends>
-   <header>ctkDICOMQueryWidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>ctkDirectoryButton</class>
    <extends>QWidget</extends>
    <header>ctkDirectoryButton.h</header>
@@ -546,6 +483,12 @@
    <class>ctkDICOMDatasetView</class>
    <extends>QWidget</extends>
    <header location="global">ctkDICOMDatasetView.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkDICOMTableManager</class>
+   <extends>QWidget</extends>
+   <header location="global">ctkDICOMTableManager.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
