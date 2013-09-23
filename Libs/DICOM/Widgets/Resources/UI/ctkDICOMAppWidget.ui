@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>788</width>
-    <height>607</height>
+    <width>792</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -154,12 +154,6 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>200</height>
-          </size>
-         </property>
         </widget>
        </item>
        <item>
@@ -218,12 +212,6 @@
      </item>
      <item>
       <widget class="QFrame" name="PreviewFrame">
-       <property name="minimumSize">
-        <size>
-         <width>256</width>
-         <height>256</height>
-        </size>
-       </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <layout class="QHBoxLayout" name="HorizontalLayout">
@@ -362,14 +350,7 @@
          </layout>
         </item>
         <item>
-         <widget class="ctkDICOMDatasetView" name="ImagePreview" native="true">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
+         <widget class="ctkDICOMDatasetView" name="ImagePreview" native="true"/>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
