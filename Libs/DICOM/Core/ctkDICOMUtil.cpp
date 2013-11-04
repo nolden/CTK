@@ -25,6 +25,7 @@
 #include "ctkDICOMUtil.h"
 
 // DCMTK includes
+#define HAVE_CONFIG_H
 #include <dcmtk/dcmnet/diutil.h>
 
 //------------------------------------------------------------------------------

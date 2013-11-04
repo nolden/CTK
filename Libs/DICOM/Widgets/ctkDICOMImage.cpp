@@ -28,6 +28,7 @@
 #include "ctkLogger.h"
 
 // DCMTK includes
+#define HAVE_CONFIG_H
 #include <dcmimage.h>
 #include <ofbmanip.h>
 

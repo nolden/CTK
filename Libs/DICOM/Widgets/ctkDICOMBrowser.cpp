@@ -21,6 +21,7 @@
 // std includes
 #include <iostream>
 
+#define HAVE_CONFIG_H
 #include <dcmimage.h>
 
 // Qt includes

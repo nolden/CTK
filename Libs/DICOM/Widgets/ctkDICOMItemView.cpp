@@ -21,6 +21,7 @@
 #include <iostream>
 
 // DCMTK includes
+#define HAVE_CONFIG_H
 #include <dcmtk/dcmimgle/dcmimage.h>
 #include <dcmtk/dcmimage/diregist.h> /* Include color image support */
 

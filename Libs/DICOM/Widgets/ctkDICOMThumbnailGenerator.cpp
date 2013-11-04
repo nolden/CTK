@@ -27,6 +27,7 @@
 #include <QImage>
 
 // DCMTK includes
+#define HAVE_CONFIG_H
 #include "dcmimage.h"
 
 static ctkLogger logger ( "org.commontk.dicom.DICOMThumbnailGenerator" );

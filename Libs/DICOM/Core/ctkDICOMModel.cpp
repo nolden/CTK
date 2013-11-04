@@ -30,6 +30,7 @@
 #include <QDebug>
 
 // dcmtk includes
+#define HAVE_CONFIG_H
 #include "dcvrpn.h"
 
 // ctkDICOMCore includes

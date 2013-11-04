@@ -28,6 +28,7 @@
 #include "ctkDICOMImage.h"
 
 // DCMTK includes
+#define HAVE_CONFIG_H
 #include <dcmimage.h>
 
 // STD includes
