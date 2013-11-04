@@ -30,7 +30,7 @@
 //------------------------------------------------------------------------------
 void ctk::setDICOMLogLevel(ctkErrorLogLevel::LogLevel level)
 {
-  dcmtk::log4cplus::Logger log = dcmtk::log4cplus::Logger::getRoot();
+  log4cplus::Logger log = log4cplus::Logger::getRoot();
   switch (level)
     {
     case ctkErrorLogLevel::Trace: log.setLogLevel(OFLogger::TRACE_LOG_LEVEL); break;
@@ -49,7 +49,7 @@ void ctk::setDICOMLogLevel(ctkErrorLogLevel::LogLevel level)
 //------------------------------------------------------------------------------
 ctkErrorLogLevel::LogLevel ctk::dicomLogLevel()
 {
-  dcmtk::log4cplus::Logger log = dcmtk::log4cplus::Logger::getRoot();
+  log4cplus::Logger log = log4cplus::Logger::getRoot();
   switch (log.getLogLevel())
     {
     case OFLogger::TRACE_LOG_LEVEL: return ctkErrorLogLevel::Trace;
