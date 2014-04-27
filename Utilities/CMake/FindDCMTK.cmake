@@ -71,6 +71,7 @@ foreach(lib
     dcmimage
     dcmimgle
     dcmdata
+    dcmdsig
     oflog
     ofstd
     ijg12
@@ -230,4 +231,5 @@ find_package_handle_standard_args(DCMTK
   FAIL_MESSAGE "Please set DCMTK_DIR and re-run configure")
 
 message(STATUS "Trying to find DCMTK relying on FindDCMTK.cmake - ok")
-
+list(APPEND DCMTK_LIBRARIES tiff wrap xml2)
+ 

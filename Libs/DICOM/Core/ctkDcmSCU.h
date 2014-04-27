@@ -20,7 +20,7 @@
  */
 #include "dcmtk/config/osconfig.h"  /* make sure OS specific configuration is included first */
 
-#if ! ( PACKAGE_VERSION_NUMBER == 360 )
+#if ! ( 1 )
 #include "dcmtk/dcmnet/scu.h"
 #else
 
