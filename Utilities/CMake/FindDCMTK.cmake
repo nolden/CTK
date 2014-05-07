@@ -169,6 +169,7 @@ foreach(lib
     dcmimage
     dcmimgle
     dcmdata
+    dcmdsig
     oflog
     ofstd
     ijg12
