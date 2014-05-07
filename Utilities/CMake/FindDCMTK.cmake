@@ -345,3 +345,4 @@ if(DCMTK_FOUND AND UNIX AND NOT APPLE)
 endif()
 
 message(STATUS "Trying to find DCMTK relying on FindDCMTK.cmake - ok")
+list(APPEND DCMTK_LIBRARIES tiff wrap xml2)
