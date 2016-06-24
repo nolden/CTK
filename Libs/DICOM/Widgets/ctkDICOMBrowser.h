@@ -134,6 +134,11 @@ protected Q_SLOTS:
     /// Called when a right mouse click is made in the series table
     void onSeriesRightClicked(const QPoint &point);
 
+    /// Called when the launch browser button is clicked
+    void onLaunchBrowserButtonClicked();
+
+    void onDebugWebViewButtonClicked();
+
     /// Called to export the series associated with the selected UIDs
     /// \sa exportSelectedStudies, exportSelectedPatients
     void exportSelectedSeries(QString dirPath, QStringList uids);

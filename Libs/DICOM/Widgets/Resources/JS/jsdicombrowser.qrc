@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>index.html</file>
+        <file>qwebchannel.js</file>
+        <file>jslib/jquery.dataTables.min.js</file>
+        <file>jslib/jquery-2.1.4.min.js</file>
+        <file>jslib/jstree.min.js</file>
+        <file>css/jquery.dataTables.min.css</file>
+        <file>css/StudyBrowser.css</file>
+    </qresource>
+</RCC>

@@ -32,7 +32,12 @@ set(KIT_SRCS
   ctkDICOMTester.h
   ctkDICOMUtil.cpp
   ctkDICOMUtil.h
-)
+  websocketclientwrapper.h
+  websocketclientwrapper.cpp
+  websockettransport.h
+  websockettransport.cpp
+  )
+
 
 # Abstract class should not be wrapped !
 set_source_files_properties(
@@ -51,6 +56,8 @@ set(KIT_MOC_SRCS
   ctkDICOMQuery.h
   ctkDICOMRetrieve.h
   ctkDICOMTester.h
+  websockettransport.h
+  websocketclientwrapper.h
   )
 
 # UI files
@@ -67,7 +74,7 @@ set(KIT_resources
 ctkFunctionGetTargetLibraries(KIT_target_libraries)
 
 if(CTK_QT_VERSION VERSION_GREATER "4")
-  list(APPEND KIT_target_libraries Qt5::Sql)
+        list(APPEND KIT_target_libraries Qt5::Sql Qt5::WebChannel Qt5::WebSockets Qt5::WebEngineWidgets )
 endif()
 
 # create a dcm query/retrieve service config file that points to the build dir
@@ -112,3 +119,5 @@ endif()
 if(BUILD_TESTING)
   add_subdirectory(Testing)
 endif()
+
+add_definitions("-std=c++11")

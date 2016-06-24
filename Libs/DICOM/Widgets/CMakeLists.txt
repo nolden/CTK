@@ -81,6 +81,7 @@ set(KIT_UI_FORMS
 
 # Resources
 set(KIT_resources
+  Resources/JS/jsdicombrowser.qrc
 )
 
 # Target libraries - See CMake/ctkFunctionGetTargetLibraries.cmake

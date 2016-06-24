@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>788</width>
-    <height>607</height>
+    <width>1145</width>
+    <height>734</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -429,6 +429,9 @@
          </widget>
         </item>
         <item>
+         <widget class="QLineEdit" name="lineEdit"/>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
            <widget class="QCheckBox" name="AutoPlayCheckbox">
@@ -606,8 +609,8 @@
    <slot>onNextImage()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>608</x>
-     <y>395</y>
+     <x>802</x>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -622,8 +625,8 @@
    <slot>onPreviousImage()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>566</x>
-     <y>395</y>
+     <x>681</x>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -638,8 +641,8 @@
    <slot>onNextSeries()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>395</y>
+     <x>923</x>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -654,8 +657,8 @@
    <slot>onPreviousSeries()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>524</x>
-     <y>395</y>
+     <x>560</x>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -670,8 +673,8 @@
    <slot>onNextStudy()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>692</x>
-     <y>395</y>
+     <x>1044</x>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -686,8 +689,8 @@
    <slot>onPreviousStudy()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>395</y>
+     <x>439</x>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -702,8 +705,8 @@
    <slot>onAutoPlayCheckboxStateChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>430</x>
-     <y>596</y>
+     <x>414</x>
+     <y>710</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -718,8 +721,8 @@
    <slot>onThumbnailWidthSliderValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>236</x>
-     <y>610</y>
+     <x>206</x>
+     <y>717</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>

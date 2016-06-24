@@ -90,7 +90,7 @@ public:
   void setThumbnailGenerator(ctkDICOMAbstractThumbnailGenerator* generator);
   ///
   /// get thumbnail genrator object
-  ctkDICOMAbstractThumbnailGenerator* thumbnailGenerator();
+  Q_INVOKABLE ctkDICOMAbstractThumbnailGenerator* thumbnailGenerator();
 
   ///
   /// open the SQLite database in @param databaseFile . If the file does not
@@ -130,7 +130,15 @@ public:
   ///
   /// \brief database accessors
   Q_INVOKABLE QStringList patients ();
+
   Q_INVOKABLE QStringList studiesForPatient (const QString patientUID);
+  /// returns studies for patient
+  /// if patientUID is empty, return all studies
+
+  Q_INVOKABLE QJsonDocument studiesAsJson (const QString patientUID = QString() );
+  Q_INVOKABLE QJsonDocument seriesAsJson(const QString studyUID = QString() );
+  Q_INVOKABLE QJsonDocument instancesAsJson(QString seriesUID = QString() );
+
   Q_INVOKABLE QStringList seriesForStudy (const QString studyUID);
   Q_INVOKABLE QString studyForSeries(QString seriesUID);
   Q_INVOKABLE QString patientForStudy(QString studyUID);
@@ -239,7 +247,8 @@ public:
   Q_INVOKABLE bool cacheTag (const QString sopInstanceUID, const QString tag, const QString value);
   /// Insert lists of tags into the cache as a batch query operation
   Q_INVOKABLE bool cacheTags (const QStringList sopInstanceUIDs, const QStringList tags, const QStringList values);
-
+  /// expose this instance on a WebChannel under the id "ctkDICOMDatabase" on port 61001
+  void exposeWebChannel();
 
 Q_SIGNALS:
   /// Things inserted to database.
@@ -268,6 +277,9 @@ Q_SIGNALS:
   void schemaUpdateProgress(QString);
   /// Indicates schema update finished
   void schemaUpdated();
+
+
+
 
 protected:
   QScopedPointer<ctkDICOMDatabasePrivate> d_ptr;

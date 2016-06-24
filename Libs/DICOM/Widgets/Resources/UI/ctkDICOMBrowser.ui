@@ -75,7 +75,7 @@
         </widget>
        </item>
        <item>
-        <widget class="ctkDirectoryButton" name="DirectoryButton">
+        <widget class="ctkDirectoryButton" name="DirectoryButton" native="true">
          <property name="minimumSize">
           <size>
            <width>200</width>
@@ -93,7 +93,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Density</string>
+          <string>Style</string>
          </property>
         </widget>
        </item>
@@ -114,6 +114,21 @@
            <string>Compact</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string>Web</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="DebugWebViewButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Debug WebView</string>
+         </property>
         </widget>
        </item>
        <item>
@@ -129,32 +144,47 @@
          </property>
         </spacer>
        </item>
+       <item>
+        <widget class="QPushButton" name="launchBrowserButton">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset theme="applications-internet"/>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="QueryLayout" stretch="0">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="ctkDICOMTableManager" name="dicomTableManager">
-       <property name="dynamicTableLayout">
-        <bool>true</bool>
+    <widget class="QStackedWidget" name="TableStack">
+     <widget class="QWidget" name="TablesPage" native="true">
+      <layout class="QHBoxLayout" name="QueryLayout" stretch="0">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="m_DynamicLayout" stdset="0">
-        <bool>true</bool>
+       <property name="leftMargin">
+        <number>1</number>
        </property>
-      </widget>
-     </item>
-    </layout>
+       <property name="rightMargin">
+        <number>1</number>
+       </property>
+       <item>
+        <widget class="ctkDICOMTableManager" name="dicomTableManager" native="true">
+         <property name="dynamicTableLayout" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="m_DynamicLayout" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="WebPage"/>
+    </widget>
    </item>
   </layout>
   <action name="ActionImport">
@@ -220,12 +250,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ctkDICOMTableManager</class>
-   <extends>QWidget</extends>
-   <header>ctkDICOMTableManager.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>ctkDirectoryButton</class>
    <extends>QWidget</extends>
    <header>ctkDirectoryButton.h</header>
@@ -233,6 +257,12 @@
    <slots>
     <signal>directoryChanged(QString)</signal>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>ctkDICOMTableManager</class>
+   <extends>QWidget</extends>
+   <header>ctkDICOMTableManager.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

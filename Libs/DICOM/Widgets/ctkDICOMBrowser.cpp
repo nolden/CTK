@@ -35,6 +35,9 @@
 #include <QSettings>
 #include <QStringListModel>
 #include <QWidgetAction>
+#include <QDesktopServices>
+#include <QtWebEngineWidgets/QWebEngineView>
+#include <QHBoxLayout>
 
 // ctkWidgets includes
 #include "ctkDirectoryButton.h"
@@ -53,6 +56,8 @@
 #include "ctkDICOMTableManager.h"
 
 #include "ui_ctkDICOMBrowser.h"
+
+#include "ctkConfig.h"
 
 //logger
 #include <ctkLogger.h>
@@ -79,6 +84,7 @@ public:
 
   void showIndexerDialog();
   void showUpdateSchemaDialog();
+  void exposeWebChannel(int port);
 
   // used when suspending the ctkDICOMModel
   QSqlDatabase EmptyDatabase;
@@ -278,6 +284,19 @@ ctkDICOMBrowser::ctkDICOMBrowser(QWidget* _parent):Superclass(_parent),
 
   connect(d->QueryRetrieveWidget, SIGNAL(canceled()), d->QueryRetrieveWidget, SLOT(hide()) );
   connect(d->QueryRetrieveWidget, SIGNAL(canceled()), this, SLOT(onQueryRetrieveFinished()) );
+
+  d->DICOMDatabase.data()->exposeWebChannel();
+
+  /// open plain QWebEngineView with index.html from compiled in resources
+  setenv("QTWEBENGINE_REMOTE_DEBUGGING","61002",1);
+  QWebEngineView *view = new QWebEngineView(d->WebPage);
+  view->setUrl(QUrl("qrc:/index.html"));
+  d->WebPage->setLayout(new QHBoxLayout());
+  d->WebPage->layout()->addWidget(view);
+
+  connect(d->launchBrowserButton, SIGNAL(clicked()), this, SLOT(onLaunchBrowserButtonClicked()));
+  connect(d->DebugWebViewButton, SIGNAL(clicked()), this, SLOT(onDebugWebViewButtonClicked()));
+
 }
 
 //----------------------------------------------------------------------------
@@ -557,7 +576,7 @@ void ctkDICOMBrowser::onRepairAction()
 void ctkDICOMBrowser::onTablesDensityComboBox(QString density)
 {
   Q_D(ctkDICOMBrowser);
-
+  int webMode = 0;
   if ( density == "Comfortable")
   {
     d->dicomTableManager->setDisplayDensity(ctkDICOMTableManager::Comfortable);
@@ -570,6 +589,12 @@ void ctkDICOMBrowser::onTablesDensityComboBox(QString density)
   {
     d->dicomTableManager->setDisplayDensity(ctkDICOMTableManager::Compact);
   }
+  else if (density == "Web")
+  {
+    webMode = 1;
+  }
+  d->TableStack->setCurrentIndex(webMode);
+  d->DebugWebViewButton->setEnabled(webMode == 1);
 }
 
 //----------------------------------------------------------------------------
@@ -913,7 +938,19 @@ void ctkDICOMBrowser::onSeriesRightClicked(const QPoint &point)
       this->exportSelectedSeries(dirPath, selectedSeriesUIDs);
       }
     delete directoryDialog;
-    }
+  }
+}
+
+void ctkDICOMBrowser::onLaunchBrowserButtonClicked()
+{
+
+  QDesktopServices::openUrl(QUrl(QString(CTK_SOURCE_DIR) + "/Libs/DICOM/Widgets/Resources/JS/index.html"));
+
+}
+
+void ctkDICOMBrowser::onDebugWebViewButtonClicked()
+{
+  QDesktopServices::openUrl(QUrl(QString("http://127.0.0.1:61002")));
 }
 
 //----------------------------------------------------------------------------

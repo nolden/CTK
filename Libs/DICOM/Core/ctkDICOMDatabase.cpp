@@ -33,6 +33,14 @@
 #include <QStringList>
 #include <QVariant>
 
+#include <QWebChannel>
+#include <QWebSocketServer>
+
+#include "websockettransport.h"
+#include "websocketclientwrapper.h"
+
+
+
 // ctkDICOM includes
 #include "ctkDICOMDatabase.h"
 #include "ctkDICOMAbstractThumbnailGenerator.h"
@@ -146,19 +154,30 @@ public:
   int insertPatient(const ctkDICOMItem& ctkDataset);
   void insertStudy(const ctkDICOMItem& ctkDataset, int dbPatientID);
   void insertSeries( const ctkDICOMItem& ctkDataset, QString studyInstanceUID);
+
+  /// webchannel stuff
+  QWebSocketServer server;
+  WebSocketClientWrapper* clientWrapper;
+
+  // setup the channel
+  QWebChannel channel;
+  
+  QJsonDocument queryAsJson(QString sqlQuery);
 };
 
 //------------------------------------------------------------------------------
 // ctkDICOMDatabasePrivate methods
 
 //------------------------------------------------------------------------------
-ctkDICOMDatabasePrivate::ctkDICOMDatabasePrivate(ctkDICOMDatabase& o): q_ptr(&o)
+ctkDICOMDatabasePrivate::ctkDICOMDatabasePrivate(ctkDICOMDatabase& o): q_ptr(&o), server(QStringLiteral("QWebChannel Standalone Example Server"),
+                          QWebSocketServer::NonSecureMode)
 {
+  Q_Q(ctkDICOMDatabase);
   this->thumbnailGenerator = NULL;
   this->LoggedExecVerbose = false;
   this->TagCacheVerified = false;
   this->resetLastInsertedValues();
-}
+  }
 
 //------------------------------------------------------------------------------
 void ctkDICOMDatabasePrivate::resetLastInsertedValues()
@@ -197,6 +216,7 @@ void ctkDICOMDatabasePrivate::registerCompressionLibraries(){
 //------------------------------------------------------------------------------
 ctkDICOMDatabasePrivate::~ctkDICOMDatabasePrivate()
 {
+	delete clientWrapper; 
 }
 
 //------------------------------------------------------------------------------
@@ -589,6 +609,80 @@ QStringList ctkDICOMDatabase::studiesForPatient(QString dbPatientID)
       result << query.value(0).toString();
     }
   return( result );
+}
+
+QJsonDocument ctkDICOMDatabase::studiesAsJson(const QString patientUID)
+{
+ Q_D(ctkDICOMDatabase);
+ QString query = "SELECT * FROM Studies";
+ if (!patientUID.isEmpty())
+ {
+   query.append(" WHERE PatientsUID = '").append(patientUID).append("'");
+ }
+ return d->queryAsJson(query);
+}
+
+QJsonDocument ctkDICOMDatabase::seriesAsJson(QString studyUID)
+{
+  Q_D(ctkDICOMDatabase);
+  QString query = "SELECT * FROM Series";
+  if (!studyUID.isEmpty())
+  {
+    query.append(" WHERE StudyInstanceUID = '").append(studyUID).append("'");
+  }
+  return d->queryAsJson(query);
+}
+
+QJsonDocument ctkDICOMDatabase::instancesAsJson(QString seriesUID)
+{
+  Q_D(ctkDICOMDatabase);
+  QString query = "SELECT * FROM Images";
+  if (!seriesUID.isEmpty())
+  {
+    query.append(" WHERE SeriesInstanceUID = '").append(seriesUID).append("'");
+  }
+  return d->queryAsJson(query);
+}
+
+
+//------------------------------------------------------------------------------
+QJsonDocument ctkDICOMDatabasePrivate::queryAsJson(QString sqlQuery)
+{
+  QSqlQuery query(Database);
+  query.setForwardOnly(true);
+  query.prepare ( sqlQuery );
+  // query.exec();
+
+  if (!query.exec())
+    {
+    return QJsonDocument();
+  }
+
+  QJsonDocument json;
+  QJsonArray rowArray;
+  QJsonArray columns;
+  QJsonArray data;
+
+  bool columnsInitialized = false;
+  while(query.next())
+  {
+     QJsonArray row;
+     for(int x=0; x < query.record().count(); x++)
+        {
+          if (!columnsInitialized)
+          {
+            columns.append( QJsonObject {
+             {"title", QJsonValue::fromVariant(query.record().fieldName(x))}
+            }
+            );
+          }
+          row.append(QJsonValue::fromVariant(query.value(x)) );
+        }
+     rowArray.push_back(row);
+     columnsInitialized = true;
+  }
+  json.setObject(QJsonObject { { "data", rowArray } , { "columns",columns} } );
+  return json;
 }
 
 //------------------------------------------------------------------------------
@@ -1809,4 +1903,26 @@ bool ctkDICOMDatabase::cacheTags(const QStringList sopInstanceUIDs, const QStrin
   insertTags.addBindValue(tags);
   insertTags.addBindValue(values);
   return d->loggedExecBatch(insertTags);
+}
+
+
+
+//------------------------------------------------------------------------------
+void ctkDICOMDatabase::exposeWebChannel()
+{
+  Q_D(ctkDICOMDatabase);
+  if (!d->server.listen(QHostAddress::LocalHost, 61001))
+  {
+    qFatal("Failed to open web socket server.");
+    return;
+  }
+  // wrap WebSocket clients in QWebChannelAbstractTransport objects
+  d->clientWrapper = new WebSocketClientWrapper(&d->server);
+
+  // setup the channel
+  QObject::connect(d->clientWrapper, &WebSocketClientWrapper::clientConnected,
+                   &d->channel, &QWebChannel::connectTo);
+
+  // setup the dialog and publish it to the QWebChannel
+  d->channel.registerObject("ctkDICOMDatabase", this);
 }
