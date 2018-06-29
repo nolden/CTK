@@ -29,6 +29,7 @@
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QDebug>
+#include <QUrlQuery>
 
 // ctkDICOMCore includes
 #include "ctkDICOMQuery.h"
@@ -50,6 +51,7 @@
 #include <dcmtk/ofstd/ofstd.h>        /* for class OFStandard */
 #include <dcmtk/dcmdata/dcddirif.h>   /* for class DicomDirInterface */
 
+#include <qRestAPI.h>
 
 static ctkLogger logger ( "org.commontk.dicom.DICOMQuery" );
 
@@ -80,6 +82,23 @@ public:
 };
 
 //------------------------------------------------------------------------------
+// A customized implemenation so that Qt signals can be emitted
+// when query results are obtained
+class ctkDICOMQueryQIDOPrivate
+{
+public:
+  ctkDICOMQuery *query;
+  ctkDICOMQueryQIDOPrivate()
+    {
+    this->query = 0;
+    };
+  ~ctkDICOMQueryQIDOPrivate() {};
+};
+
+
+
+
+//------------------------------------------------------------------------------
 class ctkDICOMQueryPrivate
 {
 public:
@@ -96,6 +115,7 @@ public:
   bool                    PreferCGET;
   QMap<QString,QVariant>  Filters;
   ctkDICOMQuerySCUPrivate SCU;
+  ctkDICOMQueryQIDOPrivate QIDO;
   DcmDataset*             Query;
   QStringList             StudyInstanceUIDList;
   QList<DcmDataset*>      StudyDatasetList;
@@ -137,6 +157,8 @@ ctkDICOMQuery::ctkDICOMQuery(QObject* parentObject)
 {
   Q_D(ctkDICOMQuery);
   d->SCU.query = this; // give the dcmtk level access to this for emitting signals
+  d->QIDO.query = this; // give the dcmtk level access to this for emitting signals
+
 }
 
 //------------------------------------------------------------------------------
@@ -398,6 +420,54 @@ bool ctkDICOMQuery::query(ctkDICOMDatabase& database )
     }
   emit progress(40);
   if (d->Canceled) {return false;}
+
+  /// Convert query to QIDO Url
+  ///
+  ///
+  d->Query->writeXML(std::cout);
+  /// 1. iterate through the Query object
+  ///
+  QUrlQuery queryUrl;
+  unsigned long nTags = d->Query->card();
+  std::cout << "nTags:" << nTags << std::endl;
+  for (unsigned long childIndex = 0 ; childIndex < nTags ; childIndex++ )
+  {
+      DcmElement* child = d->Query->getElement(childIndex);
+      DcmTag tag = child->getTag();
+      child->writeXML(std::cout);
+      std::cout << child->getLength() << std::endl;
+      if (child->getLength() == 0)
+      {
+          /// no content, we just want this in the result
+          ///
+          queryUrl.addQueryItem("includefield",QString(tag.getTagName()));
+      }
+      else
+      {
+          char* value;
+          child->getString(value);
+
+          queryUrl.addQueryItem(tag.getTagName(),QString(value));
+      }
+
+  }
+  qInfo() << "Query: " << queryUrl.toString();
+
+
+  qRestAPI dicomWeb;
+  qRestAPI::RawHeaders headers;
+  // headers.insert("Accept","multipart/related; type=\"application/dicom+xml\"");
+  dicomWeb.setServerUrl("http://dockerhost:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies/?");
+  dicomWeb.setDefaultRawHeaders(headers);
+  QBuffer wsResult;
+  QUuid queryId = dicomWeb.get(&wsResult, queryUrl.toString());
+  dicomWeb.sync(queryId);
+  qInfo() << "Buffer content:" << wsResult.buffer();
+  QJsonDocument resDoc = QJsonDocument::fromBinaryData(wsResult.buffer());
+  qInfo() << resDoc.toBinaryData();
+
+
+
 
   OFCondition status = d->SCU.sendFINDRequest ( presentationContext, d->Query, &responses );
   if ( !status.good() )

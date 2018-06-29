@@ -7,4 +7,5 @@
 set(target_libraries
   CTKCore
   DCMTK_LIBRARIES
+  qRestAPI_LIBRARIES
   )
