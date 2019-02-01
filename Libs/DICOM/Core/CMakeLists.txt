@@ -67,7 +67,7 @@ set(KIT_resources
 ctkFunctionGetTargetLibraries(KIT_target_libraries)
 
 if(CTK_QT_VERSION VERSION_GREATER "4")
-  list(APPEND KIT_target_libraries Qt5::Sql)
+  list(APPEND KIT_target_libraries Qt5::Sql Qt5::Script)
 endif()
 
 # create a dcm query/retrieve service config file that points to the build dir
