@@ -282,6 +282,11 @@ bool ctkDICOMQuery::query(ctkDICOMDatabase& database )
   emit progress(0);
   if (d->Canceled) {return false;}
 
+  // preliminary hacky switch for DICOMweb
+  bool useDICOMweb = this->host().startsWith("http");
+
+  if (!useDICOMweb)
+  {
   d->StudyInstanceUIDList.clear();
   d->SCU.setAETitle ( OFString(this->callingAETitle().toStdString().c_str()) );
   d->SCU.setPeerAETitle ( OFString(this->calledAETitle().toStdString().c_str()) );
@@ -320,7 +325,7 @@ bool ctkDICOMQuery::query(ctkDICOMDatabase& database )
     emit progress(100);
     return false;
     }
-
+  }
   // Clear the query
   d->Query->clear();
 
@@ -404,8 +409,9 @@ bool ctkDICOMQuery::query(ctkDICOMDatabase& database )
   if (d->Canceled) {return false;}
 
   OFList<QRResponse *> responses;
-
   Uint16 presentationContext = 0;
+
+if (!useDICOMweb) {
   // Check for any accepted presentation context for FIND in study root (dont care about transfer syntax)
   presentationContext = d->SCU.findPresentationContextID ( UID_FINDStudyRootQueryRetrieveInformationModel, "");
   if ( presentationContext == 0 )
@@ -419,6 +425,7 @@ bool ctkDICOMQuery::query(ctkDICOMDatabase& database )
     emit progress("Found useful presentation context");
     }
   emit progress(40);
+}
   if (d->Canceled) {return false;}
 
   /// Convert query to QIDO Url
@@ -453,18 +460,50 @@ bool ctkDICOMQuery::query(ctkDICOMDatabase& database )
   }
   qInfo() << "Query: " << queryUrl.toString();
 
-
+  if (useDICOMweb) {
   qRestAPI dicomWeb;
   qRestAPI::RawHeaders headers;
   // headers.insert("Accept","multipart/related; type=\"application/dicom+xml\"");
-  dicomWeb.setServerUrl("http://dockerhost:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies/?");
+  dicomWeb.setServerUrl(this->host() + "/rs/studies/?");
   dicomWeb.setDefaultRawHeaders(headers);
   QBuffer wsResult;
   QUuid queryId = dicomWeb.get(&wsResult, queryUrl.toString());
   dicomWeb.sync(queryId);
-  qInfo() << "Buffer content:" << wsResult.buffer();
-  QJsonDocument resDoc = QJsonDocument::fromBinaryData(wsResult.buffer());
-  qInfo() << resDoc.toBinaryData();
+  std::cout << "Buffer content:" << wsResult.buffer().toStdString();
+  QJsonDocument resDoc = QJsonDocument::fromJson(wsResult.buffer());
+  // resDoc.toVariant();
+  qInfo() << resDoc.isArray();
+  qInfo() << resDoc.array().size();
+  for( const QJsonValue v : resDoc.array() )
+  {
+      qInfo() << "Object: " << v.toVariant();
+      DcmDataset dataset;
+      ctkDICOMItem item;
+      item.InitializeFromItem(&dataset);
+
+      QVariantMap m = v.toObject().toVariantMap();
+      for ( QString key : m.keys() )
+      {
+        int group = QStringRef(&key,0,4).toUInt(nullptr,16);
+        int element = QStringRef(&key,4,4).toUInt(nullptr,16);
+
+        item.SetElementAsString(DcmTag(group,element), m[key].toString());
+      }
+      dataset.writeXML(std::cout);
+      database.insert ( item, false /* do not store to disk*/, false /* no thumbnail*/);
+          OFString StudyInstanceUID;
+          item.findAndGetOFString ( DCM_StudyInstanceUID, StudyInstanceUID );
+          // d->addStudyInstanceUIDAndDataset ( StudyInstanceUID.c_str(), item );
+          emit progress(QString("Processing: ") + QString(StudyInstanceUID.c_str()));
+          emit progress(50);
+          if (d->Canceled) {return false;}
+    }
+
+
+  }
+  // qInfo() << resDoc.isObject();
+
+  // qInfo() << resDoc.toJson();
 
 
 
